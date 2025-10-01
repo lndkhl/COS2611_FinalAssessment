@@ -195,270 +195,245 @@ class SmartCityRouteManagement {
         
     public:
         // this constructor initializes the graph with hardcoded Southern African locations
-        SmartCityRouteManagement() {
-            // adds major Southern African locations with realistic names
-            // addLocation("Windhoek");     
-            // addLocation("Gaborone");     
-            // addLocation("Johannesburg"); 
-            // addLocation("Harare");       
-            // addLocation("Maputo");       
-            // addLocation("Lusaka");       
-            // addLocation("Pretoria");     
-            
-            // initialize adjacency list and matrix
-            // resizeListAndMatrix();
-            
-            // add realistic road connections with approximate distances in km
-            // addRoute("Windhoek", "Gaborone", 950);
-            // addRoute("Windhoek", "Johannesburg", 1450);
-            // addRoute("Gaborone", "Johannesburg", 550);
-            // addRoute("Gaborone", "Harare", 1050);
-            // addRoute("Johannesburg", "Pretoria", 60);
-            // addRoute("Johannesburg", "Maputo", 550);
-            // addRoute("Johannesburg", "Harare", 1150);
-            // addRoute("Harare", "Lusaka", 570);
-            // addRoute("Maputo", "Harare", 1200);
-            // addRoute("Pretoria", "Maputo", 520);
-            // addRoute("Lusaka", "Gaborone", 1250);
-    }
+        SmartCityRouteManagement() {}
     
-    // this function adds a location to the network
-    void addLocation(const string& locationName) {
-        // check if location already exists
-        if (locationToIndex.find(locationName) == locationToIndex.end()) {
-            int index = locations.size();
-            locations.emplace_back(locationName, index);
-            locationToIndex[locationName] = index;
-        }
-    }
-    
-    // this function adds a road between two locations
-    void addRoute(const string& location1, const string& location2, int distance) {
-        // check if both locations exist
-        if (locationToIndex.find(location1) == locationToIndex.end() || 
-            locationToIndex.find(location2) == locationToIndex.end()) {
-            cout << "Error: One or both locations not found!" << endl;
-            return;
+        // this function adds a location to the network
+        void addLocation(const string& locationName) {
+            // check if location already exists
+            if (locationToIndex.find(locationName) == locationToIndex.end()) {
+                int index = locations.size();
+                locations.emplace_back(locationName, index);
+                locationToIndex[locationName] = index;
+            }
         }
         
-        int idx1 = locationToIndex[location1];
-        int idx2 = locationToIndex[location2];
-        
-        // add to adjacency list (both directions for undirected graph)
-        adjList[idx1].emplace_back(idx2, distance);
-        adjList[idx2].emplace_back(idx1, distance);
-        
-        // add to adjacency matrix (both directions)
-        adjMatrix[idx1][idx2] = distance;
-        adjMatrix[idx2][idx1] = distance;
-    }
-    
-    // this function displays the adjacency matrix
-    void displayAdjacencyMatrix() {
-        //
-        cout << "\nAdjancency matrix:\n" << endl;
-        // print column headers (location names)
-        cout << setw(15) << " ";
-        for (const auto& location : locations) {
-            cout << setw(15) << location.name.substr(0, 12);
-        }
-        cout << endl;
-        
-        // print matrix rows
-        for (int i = 0; i < locations.size(); i++) {
-            // Row header (location name)
-            cout << setw(15) << locations[i].name.substr(0, 12);
+        // this function adds a road between two locations
+        void addRoute(const string& location1, const string& location2, int distance) {
+            // check if both locations exist
+            if (locationToIndex.find(location1) == locationToIndex.end() || 
+                locationToIndex.find(location2) == locationToIndex.end()) {
+                cout << "Error: One or both locations not found!" << endl;
+                return;
+            }
             
-            // matrix values
-            for (int j = 0; j < locations.size(); j++) {
-                if (i == j) {
-                    cout << setw(15) << "0";  // distance to self is 0
+            int idx1 = locationToIndex[location1];
+            int idx2 = locationToIndex[location2];
+            
+            // add to adjacency list (both directions for undirected graph)
+            adjList[idx1].emplace_back(idx2, distance);
+            adjList[idx2].emplace_back(idx1, distance);
+            
+            // add to adjacency matrix (both directions)
+            adjMatrix[idx1][idx2] = distance;
+            adjMatrix[idx2][idx1] = distance;
+        }
+        
+        // this function displays the adjacency matrix
+        void displayAdjacencyMatrix() {
+            //
+            cout << "\nAdjancency matrix:\n" << endl;
+            // print column headers (location names)
+            cout << setw(15) << " ";
+            for (const auto& location : locations) {
+                cout << setw(15) << location.name.substr(0, 12);
+            }
+            cout << endl;
+            
+            // print matrix rows
+            for (int i = 0; i < locations.size(); i++) {
+                // Row header (location name)
+                cout << setw(15) << locations[i].name.substr(0, 12);
+                
+                // matrix values
+                for (int j = 0; j < locations.size(); j++) {
+                    if (i == j) {
+                        cout << setw(15) << "0";  // distance to self is 0
+                    } else {
+                        cout << setw(15) << adjMatrix[i][j];
+                    }
+                }
+                cout << endl;
+            }
+            cout << "\nNote: 0 means no direct connection, numbers represent distance in km\n";
+        }
+        
+        // this function displays the graph structure (connections between locations)
+        void displayGraphStructure() {
+            cout << "\nLocations and their direct connections:\n" << endl;
+            
+            for (int i = 0; i < locations.size(); i++) {
+                cout << "• " << locations[i].name << " connects to:" << endl;
+                
+                if (adjList[i].empty()) {
+                    cout << "  No direct connections" << endl;
                 } else {
-                    cout << setw(15) << adjMatrix[i][j];
+                    for (const auto& neighbor : adjList[i]) {
+                        cout << "  → " << locations[neighbor.locationIndex].name 
+                            << " (" << neighbor.distance << " km)" << endl;
+                    }
                 }
+                cout << endl;
             }
-            cout << endl;
         }
-        cout << "\nNote: 0 means no direct connection, numbers represent distance in km\n";
-    }
-    
-    // this function displays the graph structure (connections between locations)
-    void displayGraphStructure() {
-        cout << "\nLocations and their direct connections:\n" << endl;
         
-        for (int i = 0; i < locations.size(); i++) {
-            cout << "• " << locations[i].name << " connects to:" << endl;
-            
-            if (adjList[i].empty()) {
-                cout << "  No direct connections" << endl;
-            } else {
-                for (const auto& neighbor : adjList[i]) {
-                    cout << "  → " << locations[neighbor.locationIndex].name 
-                         << " (" << neighbor.distance << " km)" << endl;
-                }
+        // BFS traversal to show reachable locations from a starting location
+        void bfsTraversal(const string& startLocation) {
+            // check if starting location exists
+            if (locationToIndex.find(startLocation) == locationToIndex.end()) {
+                cout << "Error: Location '" << startLocation << "' not found!" << endl;
+                return;
             }
-            cout << endl;
-        }
-    }
-    
-    // BFS traversal to show reachable locations from a starting location
-    void bfsTraversal(const string& startLocation) {
-        // check if starting location exists
-        if (locationToIndex.find(startLocation) == locationToIndex.end()) {
-            cout << "Error: Location '" << startLocation << "' not found!" << endl;
-            return;
-        }
-        
-        int startIndex = locationToIndex[startLocation];
-        vector<bool> visited(locations.size(), false);
-        queue<int> q;
-        
-        cout << "\n=== BFS TRAVERSAL FROM " << startLocation << " ===\n" << endl;
-        cout << "Order of visiting locations (showing reachability):" << endl;
-        
-        // start BFS from the specified location
-        visited[startIndex] = true;
-        q.push(startIndex);
-        
-        int level = 0;
-        while (!q.empty()) {
-            int levelSize = q.size();
-            cout << "\nLevel " << level++ << ": ";
             
-            for (int i = 0; i < levelSize; i++) {
-                int current = q.front();
-                q.pop();
+            int startIndex = locationToIndex[startLocation];
+            vector<bool> visited(locations.size(), false);
+            queue<int> q;
+            
+            cout << "\n=== BFS TRAVERSAL FROM " << startLocation << " ===\n" << endl;
+            cout << "Order of visiting locations (showing reachability):" << endl;
+            
+            // start BFS from the specified location
+            visited[startIndex] = true;
+            q.push(startIndex);
+            
+            int level = 0;
+            while (!q.empty()) {
+                int levelSize = q.size();
+                cout << "\nLevel " << level++ << ": ";
                 
-                // visit the current location
-                cout << locations[current].name;
-                if (!q.empty() || i < levelSize - 1) {
-                    cout << " → ";
-                }
-                
-                // add all unvisited neighbors to the queue
-                for (const auto& neighbor : adjList[current]) {
-                    if (!visited[neighbor.locationIndex]) {
-                        visited[neighbor.locationIndex] = true;
-                        q.push(neighbor.locationIndex);
+                for (int i = 0; i < levelSize; i++) {
+                    int current = q.front();
+                    q.pop();
+                    
+                    // visit the current location
+                    cout << locations[current].name;
+                    if (!q.empty() || i < levelSize - 1) {
+                        cout << " → ";
+                    }
+                    
+                    // add all unvisited neighbors to the queue
+                    for (const auto& neighbor : adjList[current]) {
+                        if (!visited[neighbor.locationIndex]) {
+                            visited[neighbor.locationIndex] = true;
+                            q.push(neighbor.locationIndex);
+                        }
                     }
                 }
             }
-        }
-        
-        // show which locations are reachable
-        cout << "\n\nReachable locations from " << startLocation << ":" << endl;
-        for (int i = 0; i < locations.size(); i++) {
-            if (visited[i]) {
-                cout << "✓ " << locations[i].name << endl;
-            }
-        }
-        cout << endl;
-    }
-    
-    // Dijkstra's algorithm to find shortest path between two locations
-    void dijkstraShortestPath(const string& startLocation, const string& endLocation) {
-        // check if both locations exist
-        if (locationToIndex.find(startLocation) == locationToIndex.end() || 
-            locationToIndex.find(endLocation) == locationToIndex.end()) {
-            cout << "Error: One or both locations not found!" << endl;
-            return;
-        }
-        
-        int startIndex = locationToIndex[startLocation];
-        int endIndex = locationToIndex[endLocation];
-        
-        // arrays for Dijkstra's algorithm
-        vector<int> distance(locations.size(), INT_MAX);
-        vector<int> previous(locations.size(), -1);
-        vector<bool> visited(locations.size(), false);
-        
-        // priority queue: (distance, location index)
-        priority_queue<pair<int, int>, vector<pair<int, int>>, greater<pair<int, int>>> pq;
-        
-        // initialize starting location
-        distance[startIndex] = 0;
-        pq.push({0, startIndex});
-        
-        cout << "\n=== DIJKSTRA'S SHORTEST PATH: " << startLocation << " to " << endLocation << " ===\n" << endl;
-        
-        // Dijkstra's algorithm
-        while (!pq.empty()) {
-            int current = pq.top().second;
-            pq.pop();
             
-            if (visited[current]) continue;
-            visited[current] = true;
-            
-            // if we reached the destination, we can stop early
-            if (current == endIndex) break;
-            
-            // explore all neighbors
-            for (const auto& neighbor : adjList[current]) {
-                int alt = distance[current] + neighbor.distance;
-                
-                if (alt < distance[neighbor.locationIndex]) {
-                    distance[neighbor.locationIndex] = alt;
-                    previous[neighbor.locationIndex] = current;
-                    pq.push({alt, neighbor.locationIndex});
+            // show which locations are reachable
+            cout << "\n\nReachable locations from " << startLocation << ":" << endl;
+            for (int i = 0; i < locations.size(); i++) {
+                if (visited[i]) {
+                    cout << "✓ " << locations[i].name << endl;
                 }
             }
+            cout << endl;
         }
         
-        // display results
-        if (distance[endIndex] == INT_MAX) {
-            cout << "No path exists between " << startLocation << " and " << endLocation << "!" << endl;
-            return;
-        }
-        
-        // reconstruct the path
-        stack<int> path;
-        int current = endIndex;
-        
-        while (current != -1) {
-            path.push(current);
-            current = previous[current];
-        }
-        
-        // display the shortest path and distance
-        cout << "Shortest distance: " << distance[endIndex] << " km" << endl;
-        cout << "Shortest path: ";
-        
-        while (!path.empty()) {
-            cout << locations[path.top()].name;
-            path.pop();
-            if (!path.empty()) cout << " → ";
-        }
-        cout << endl;
-        
-        // show detailed route information
-        cout << "\nDetailed route:" << endl;
-        current = endIndex;
-        stack<pair<int, int>> routeSegments;
-        
-        while (previous[current] != -1) {
-            routeSegments.push({previous[current], current});
-            current = previous[current];
-        }
-        
-        while (!routeSegments.empty()) {
-            int from = routeSegments.top().first;
-            int to = routeSegments.top().second;
-            routeSegments.pop();
+        // Dijkstra's algorithm to find shortest path between two locations
+        void dijkstraShortestPath(const string& startLocation, const string& endLocation) {
+            // check if both locations exist
+            if (locationToIndex.find(startLocation) == locationToIndex.end() || 
+                locationToIndex.find(endLocation) == locationToIndex.end()) {
+                cout << "Error: One or both locations not found!" << endl;
+                return;
+            }
             
-            cout << "• " << locations[from].name << " to " << locations[to].name 
-                 << ": " << adjMatrix[from][to] << " km" << endl;
+            int startIndex = locationToIndex[startLocation];
+            int endIndex = locationToIndex[endLocation];
+            
+            // arrays for Dijkstra's algorithm
+            vector<int> distance(locations.size(), INT_MAX);
+            vector<int> previous(locations.size(), -1);
+            vector<bool> visited(locations.size(), false);
+            
+            // priority queue: (distance, location index)
+            priority_queue<pair<int, int>, vector<pair<int, int>>, greater<pair<int, int>>> pq;
+            
+            // initialize starting location
+            distance[startIndex] = 0;
+            pq.push({0, startIndex});
+            
+            cout << "\n=== DIJKSTRA'S SHORTEST PATH: " << startLocation << " to " << endLocation << " ===\n" << endl;
+            
+            // Dijkstra's algorithm
+            while (!pq.empty()) {
+                int current = pq.top().second;
+                pq.pop();
+                
+                if (visited[current]) continue;
+                visited[current] = true;
+                
+                // if we reached the destination, we can stop early
+                if (current == endIndex) break;
+                
+                // explore all neighbors
+                for (const auto& neighbor : adjList[current]) {
+                    int alt = distance[current] + neighbor.distance;
+                    
+                    if (alt < distance[neighbor.locationIndex]) {
+                        distance[neighbor.locationIndex] = alt;
+                        previous[neighbor.locationIndex] = current;
+                        pq.push({alt, neighbor.locationIndex});
+                    }
+                }
+            }
+            
+            // display results
+            if (distance[endIndex] == INT_MAX) {
+                cout << "No path exists between " << startLocation << " and " << endLocation << "!" << endl;
+                return;
+            }
+            
+            // reconstruct the path
+            stack<int> path;
+            int current = endIndex;
+            
+            while (current != -1) {
+                path.push(current);
+                current = previous[current];
+            }
+            
+            // display the shortest path and distance
+            cout << "Shortest distance: " << distance[endIndex] << " km" << endl;
+            cout << "Shortest path: ";
+            
+            while (!path.empty()) {
+                cout << locations[path.top()].name;
+                path.pop();
+                if (!path.empty()) cout << " → ";
+            }
+            cout << endl;
+            
+            // show detailed route information
+            cout << "\nDetailed route:" << endl;
+            current = endIndex;
+            stack<pair<int, int>> routeSegments;
+            
+            while (previous[current] != -1) {
+                routeSegments.push({previous[current], current});
+                current = previous[current];
+            }
+            
+            while (!routeSegments.empty()) {
+                int from = routeSegments.top().first;
+                int to = routeSegments.top().second;
+                routeSegments.pop();
+                
+                cout << "• " << locations[from].name << " to " << locations[to].name 
+                    << ": " << adjMatrix[from][to] << " km" << endl;
+            }
+            cout << endl;
         }
-        cout << endl;
-    }
-    
-    int getLocationsCount() {
-        return locations.size();
-    }
+        
+        int getLocationsCount() {
+            return locations.size();
+        }
 
-    void resizeListAndMatrix() {
-        adjList.resize(locations.size());
-        adjMatrix.resize(locations.size(), vector<int>(locations.size(), 0));
-    }
+        void resizeListAndMatrix() {
+            adjList.resize(locations.size());
+            adjMatrix.resize(locations.size(), vector<int>(locations.size(), 0));
+        }
 };
 // create the transport network
 SmartCityRouteManagement network;
