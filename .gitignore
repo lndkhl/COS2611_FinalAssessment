@@ -80,3 +80,6 @@ _[Ss]cripts
 appsettings.json
 appsettings.Development.json
 appsettings.Production.json
+# Executable #
+##############
+FinalPractical
