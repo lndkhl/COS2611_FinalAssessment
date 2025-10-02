@@ -73,7 +73,7 @@ class SmartCityRouteManagement {
         };
         
         vector<Location> locations;         // list of all locations
-        map<string, int> locationToIndex;   // mapping from location name to index
+        map<string, int> locationToIndex;   // mapping location name to index
         vector<vector<Neighbor>> adjList;   // adjacency list representation
         vector<vector<int>> adjMatrix;      // adjacency matrix representation
         
@@ -92,7 +92,8 @@ class SmartCityRouteManagement {
         }
         
         // this function adds a route between two locations
-        void addRoute(const string& location1, const string& location2, int distance) {
+        void addRoute(const string& location1, const string& location2, 
+                        int distance) {
             // check if both locations exist
             if (locationToIndex.find(location1) == locationToIndex.end() || 
                 locationToIndex.find(location2) == locationToIndex.end()) {
@@ -130,11 +131,13 @@ class SmartCityRouteManagement {
             adjMatrix[idx2][idx1] = 0;
             /* remove_if reorders the vector and returns an iterator to the */
             /* new logical end */
-            vector<Neighbor>::iterator new_end_iterator1 = remove_if(adjList[idx1].begin(),\
+            vector<Neighbor>::iterator new_end_iterator1
+                                = remove_if(adjList[idx1].begin(),
                                 adjList[idx1].end(),[&](const Neighbor& n) {
                 return n.locationIndex == idx2;
             });
-            vector<Neighbor>::iterator new_end_iterator2 = remove_if(adjList[idx2].begin(),\
+            vector<Neighbor>::iterator new_end_iterator2
+                                = remove_if(adjList[idx2].begin(),
                                 adjList[idx2].end(),[&](const Neighbor& n) {
                 return n.locationIndex == idx1;
             });
@@ -150,28 +153,29 @@ class SmartCityRouteManagement {
             cout << "\nAdjancency matrix:\n" << endl;
             cout << setw(outputWidth.COLUMN) << " ";
             for (const Location& location : locations) {
-                cout << setw(outputWidth.COLUMN) << right \
+                cout << setw(outputWidth.COLUMN) << right
                     << location.name.substr(0, 12);
             }
             cout << endl;
 
             for (unsigned int i = 0; i < locations.size(); i++) {
-                cout << setw(outputWidth.COLUMN) << right \
+                cout << setw(outputWidth.COLUMN) << right
                 << locations[i].name.substr(0, 12);;
                 
                 // matrix values
                 for (unsigned int j = 0; j < locations.size(); j++) {
                     if (i == j) {
-                        cout << setw(outputWidth.COLUMN) \
+                        cout << setw(outputWidth.COLUMN)
                             << right << "0";  // distance to self is 0
                     } else {
-                        cout << setw(outputWidth.COLUMN) \
+                        cout << setw(outputWidth.COLUMN)
                             << right << adjMatrix[i][j];
                     }
                 }
                 cout << endl;
             }
-            cout << "\nNote: 0 means no direct connection, numbers represent distance in km\n";
+            cout << "\nNote: 0 means no direct connection,"
+                    " numbers represent distance in km\n";
         }
         
         // this function displays the adjacency list
@@ -185,7 +189,8 @@ class SmartCityRouteManagement {
                     cout << "  No direct connections" << endl;
                 } else {
                     for (const Neighbor& neighbor : adjList[i]) {
-                        cout << "  → " << locations[neighbor.locationIndex].name 
+                        cout << "  → " \
+                            << locations[neighbor.locationIndex].name
                             << " (" << neighbor.distance << " km)" << endl;
                     }
                 }
@@ -197,7 +202,8 @@ class SmartCityRouteManagement {
         void bfsTraversal(const string& startLocation) {
             // check if starting location exists
             if (locationToIndex.find(startLocation) == locationToIndex.end()) {
-                cout << "Error: Location '" << startLocation << "' not found" << endl;
+                cout << "Error: Location '" << startLocation
+                    << "' not found" << endl;
                 return;
             }
             
@@ -206,7 +212,8 @@ class SmartCityRouteManagement {
             queue<int> q;
             
             cout << "\nBFS TRAVERSAL FROM " << startLocation << "\n" << endl;
-            cout << "Order of visiting locations (showing reachability):" << endl;
+            cout << "Order of visiting locations (showing reachability):"
+                << endl;
             
             // start BFS from the specified location
             visited[startIndex] = true;
@@ -238,7 +245,8 @@ class SmartCityRouteManagement {
             }
             
             // show which locations are reachable
-            cout << "\n\nReachable locations from " << startLocation << ":" << endl;
+            cout << "\n\nReachable locations from " \
+                    << startLocation << ":" << endl;
             for (unsigned int i = 0; i < locations.size(); i++) {
                 if (visited[i]) {
                     cout << "✓ " << locations[i].name << endl;
@@ -248,9 +256,10 @@ class SmartCityRouteManagement {
         }
         
         // Dijkstra's algorithm to find shortest path between two locations
-        void dijkstraShortestPath(const string& startLocation, const string& endLocation) {
+        void dijkstraShortestPath(const string& startLocation,\
+                                     const string& endLocation) {
             // check if both locations exist
-            if (locationToIndex.find(startLocation) == locationToIndex.end() || 
+            if (locationToIndex.find(startLocation) == locationToIndex.end() ||
                 locationToIndex.find(endLocation) == locationToIndex.end()) {
                 cout << "Error: One or both locations not found" << endl;
                 return;
@@ -265,13 +274,14 @@ class SmartCityRouteManagement {
             vector<bool> visited(locations.size(), false);
             
             // priority queue: (distance, location index)
-            priority_queue<pair<int, int>, vector<pair<int, int>>, greater<pair<int, int>>> pq;
+            priority_queue<pair<int, int>, vector<pair<int, int>>,
+                            greater<pair<int, int>>> pq;
             
             // initialize starting location
             distance[startIndex] = 0;
             pq.push({0, startIndex});
             
-            cout << "\nDIJKSTRA'S SHORTEST PATH: " << startLocation \
+            cout << "\nDIJKSTRA'S SHORTEST PATH: " << startLocation
                 << " to " << endLocation << "\n" << endl;
 
             // Dijkstra's algorithm
@@ -299,7 +309,7 @@ class SmartCityRouteManagement {
             
             // display results
             if (distance[endIndex] == INT_MAX) {
-                cout << "No path exists between " << startLocation << " and " \
+                cout << "No path exists between " << startLocation << " and "
                 << endLocation << "!" << endl;
                 return;
             }
@@ -314,7 +324,8 @@ class SmartCityRouteManagement {
             }
             
             // display the shortest path and distance
-            cout << "Shortest distance: " << distance[endIndex] << " km" << endl;
+            cout << "Shortest distance: " << distance[endIndex] << " km" 
+                    << endl;
             cout << "Shortest path: ";
             
             while (!path.empty()) {
@@ -339,7 +350,7 @@ class SmartCityRouteManagement {
                 int to = routeSegments.top().second;
                 routeSegments.pop();
                 
-                cout << "• " << locations[from].name << " to " \
+                cout << "• " << locations[from].name << " to "
                     << locations[to].name \
                     << ": " << adjMatrix[from][to] << " km" << endl;
             }
@@ -352,7 +363,8 @@ class SmartCityRouteManagement {
 
         void resizeListAndMatrix() {
             adjList.resize(locations.size());
-            adjMatrix.resize(locations.size(), vector<int>(locations.size(), 0));
+            adjMatrix.resize(locations.size(), 
+                vector<int>(locations.size(), 0));
         }
 };
 // create the transport network
@@ -372,8 +384,8 @@ bool confirmOption(string description) {
             cin.clear();
             /* numeric_limits<streamsize>::max() sets the maximum number of
              * characters to ignore. Since this is the upper limit on the size
-             * of a stream, this effectively tells cin to ignore any and all input
-             * remaining in the buffer. */
+             * of a stream, this effectively tells cin to ignore any and all 
+             * input remaining in the buffer. */
             cin.ignore(numeric_limits<streamsize>::max(), '\n');
         }
     } while (choice != 'y' && choice != 'n');
@@ -478,7 +490,8 @@ void findShortestRoute() {
     cout << "Enter the end location (destination):\n";
     getline(cin, destination);
     
-    network.dijkstraShortestPath(to_uppercase(origin), to_uppercase(destination));
+    network.dijkstraShortestPath(to_uppercase(origin), 
+        to_uppercase(destination));
 }
 //
 void displayViewAllMenu() {
