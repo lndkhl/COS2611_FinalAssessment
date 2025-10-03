@@ -3,7 +3,7 @@
 /* *********************** Student Number: 21970858 ************************ */
 /* ************************************************************************* */
 
-// required for printing and formatting output to the console/terminal
+// required for printing and formatting output to the terminal
 #include <iostream>
 #include <iomanip>
 // required for data structures
@@ -13,7 +13,7 @@
 #include <set>
 #include <stack>
 #include <string>
-// required for efficient algorithm to change the case of a string
+// required for the algorithm to efficiently change the case of a string
 #include <algorithm> // required for std::transform
 #include <cctype>    // required for std::tolower
 // required for getting information about the limits of fundamental data types
@@ -29,18 +29,17 @@ struct OutputWidth {
 };
 
 const OutputWidth outputWidth;
-//
+// these functions handle program output to the terminal
 void mainMenu();
 void displayMainMenu();
 void viewAllMenu();
 void displayViewAllMenu();
-//
+// these functions process user requests
 void addRouteWizard();
 void removeRouteWizard();
 void findShortestRoute();
-void manageLocation();
 bool confirmOption(string description);
-//
+// these functions format output
 void printCenteredTitle(string title);
 void printHorizontalBreak();
 string to_uppercase(const string& str);
@@ -88,23 +87,21 @@ class SmartCityRouteManagement {
         void dijkstraShortestPath(const string& startLocation,\
                                      const string& endLocation);
         //
-        int getLocationsCount();
-        //
         void resizeListAndMatrix();
 };
 // create the transport network
 SmartCityRouteManagement network;
 
-/* ************************************************************************* */
+/* ********************************* Main ********************************* */
 int main() {
     // launches the main menu
     mainMenu();
        
     return 0;
 }
+/* ************************************************************************ */
 
-/* ************************************************************************* */
-
+/* ******************** Start of Input/Output Functions ******************* */
 // parses the user's input for the main menu
 void mainMenu() {
     int choice;
@@ -128,9 +125,8 @@ void mainMenu() {
             case 2: removeRouteWizard(); break;
             case 3: viewAllMenu(); break;
             case 4: findShortestRoute(); break;
-            case 5: manageLocation(); break;
             case 0: cout << "Goodbye!\n"; break;
-            default: cout << "Invalid choice!\n";
+            default: cout << "Invalid choice\n";
         }
     } while (choice != 0);
 }
@@ -145,12 +141,11 @@ void displayMainMenu() {
     cout << "2. Remove a route\n";
     cout << "3. View all\n";
     cout << "4. Find shortest path\n";
-    cout << "5. Manage Location\n";
     cout << "\n0. Exit\n";
     printHorizontalBreak();
-    cout << "Enter your choice (0-5): ";
+    cout << "Enter your choice (0-4): ";
 }
-// parses the user's input for the view-all menu
+// parses the user's input for the "View All" routes menu
 void viewAllMenu() {
     int choice;
 
@@ -171,11 +166,11 @@ void viewAllMenu() {
         switch(choice) {
             case 1: network.displayAdjacencyMatrix(); return;
             case 2: network.displayAdjacencyList(); return;
-            default: cout << "Invalid choice!\n";
+            default: cout << "Invalid choice\n";
         }
     } while (choice != 0);
 }
-//
+// display the "View All" routes menu
 void displayViewAllMenu() {
     string title = "VIEW ALL";
 
@@ -188,7 +183,10 @@ void displayViewAllMenu() {
     printHorizontalBreak();
     cout << "Enter your choice (0-2): ";
 }
-//
+/* ********************* End of Input/Output Functions ********************* */
+
+/* *************** Start of User-request Processing Functions ************** */
+// walks the user through adding a route between two locations
 void addRouteWizard() {
     string origin, destination;
     int distance;
@@ -208,13 +206,14 @@ void addRouteWizard() {
     getline(cin, origin);
     cout << "Enter the end location (destination):\n";
     getline(cin, destination);
-
+    // validate input, ensure origin and destination are not the same
     if (to_uppercase(origin) == to_uppercase(destination)) {
         cout << "\nError: Origin and destination cannot be the same\n";
         return ;
     }
 
     cout << "Enter the distance (in km) between the the two locations:\n";
+
     if(!(cin >> distance))
     {
         // clears any remaining input and errors
@@ -225,18 +224,18 @@ void addRouteWizard() {
             * remaining in the buffer. */
         cin.ignore(numeric_limits<streamsize>::max(), '\n');
     }
-
+    // validate input, ensure distance is positive
     if (distance < 1) {
         cout << "\nError: Invalid input\n";
         return ;
     }
-
+    // add the locations and the route to the network
     network.addLocation(to_uppercase(origin));
     network.addLocation(to_uppercase(destination));
     network.resizeListAndMatrix();
     network.addRoute(to_uppercase(origin), to_uppercase(destination), distance);
 }
-//
+// walks the user through removing a route between two locations
 void removeRouteWizard() {
     string origin, destination;
 
@@ -255,11 +254,16 @@ void removeRouteWizard() {
     getline(cin, origin);
     cout << "Enter the end location (destination):\n";
     getline(cin, destination);
-    
+    // validate input, ensure origin and destination are not the same
+    if (to_uppercase(origin) == to_uppercase(destination)) {
+        cout << "\nError: Origin and destination cannot be the same\n";
+        return ;
+    }
+    // remove the route between the two locations
     network.removeRoute(to_uppercase(origin), to_uppercase(destination));
     network.resizeListAndMatrix();
 }
-//
+// finds the shortest route between two locations
 void findShortestRoute() {
     string origin, destination;
 
@@ -278,15 +282,16 @@ void findShortestRoute() {
     getline(cin, origin);
     cout << "Enter the end location (destination):\n";
     getline(cin, destination);
+    // validate input, ensure origin and destination are not the same
+    if (to_uppercase(origin) == to_uppercase(destination)) {
+        cout << "\nError: Origin and destination cannot be the same\n";
+        return ;
+    }
     
     network.dijkstraShortestPath(to_uppercase(origin), 
         to_uppercase(destination));
 }
-//
-void manageLocation() {
-    cout << "Coming soon!\n";
-}
-//
+// prompts the user to confirm a choice
 bool confirmOption(string description) {
     char choice;
 
@@ -310,7 +315,36 @@ bool confirmOption(string description) {
     }
     return false;
 }
-/* ************************************************************************* */   
+/* **************** End of User-request Processing Functions *************** */
+
+/* ***************** Start of Output-formatting Functions ****************** */
+// prints a centered a title
+void printCenteredTitle(string title) {
+    int paddingWidth = (outputWidth.TOTAL - title.length()) / 2;
+    // prints whitespace to pad the title
+    for (int i = 0; i < paddingWidth; i++) {
+        cout << " ";
+    }
+    // prints the title
+    cout << title;
+    cout << endl;
+}
+// prints a standard width horizontal break
+void printHorizontalBreak() {
+    for (int i = 0; i < outputWidth.TOTAL; i++) {
+        cout << "=";
+    }
+    cout << endl;
+}
+// converts a string to uppercase
+string to_uppercase(const string& str) {
+    string result = str;
+    transform(result.begin(), result.end(), result.begin(), ::toupper);
+    return result;
+}
+/* ****************** End of Output-formatting Functions ******************* */
+
+/* ************** Start of SmartCityRouteManagement Functions ************** */
 // this function adds a location to the network
 void SmartCityRouteManagement::addLocation(const string& locationName) {
     // check if location already exists
@@ -536,7 +570,7 @@ void SmartCityRouteManagement::dijkstraShortestPath(const string& origin,
     // display results
     if (distance[endIndex] == INT_MAX) {
         cout << "No path exists between " << origin << " and "
-        << destination << "!" << endl;
+        << destination << endl;
         return;
     }
     // reconstruct the path
@@ -579,42 +613,29 @@ void SmartCityRouteManagement::dijkstraShortestPath(const string& origin,
     }
     cout << endl;
 }
-        
-int SmartCityRouteManagement::getLocationsCount() {
-    return locations.size();
-}
-
+// resizes the list and matrix (for use after adding/removing locations)
 void SmartCityRouteManagement::resizeListAndMatrix() {
     adjList.resize(locations.size());
     adjMatrix.resize(locations.size(), 
         vector<int>(locations.size(), 0));
 }
+/* *************** End of SmartCityRouteManagement Functions *************** */
+
 /* ************************************************************************* */
-// prints a centered a title
-void printCenteredTitle(string title) {
-    int paddingWidth = (outputWidth.TOTAL - title.length()) / 2;
-    // prints whitespace to pad the title
-    for (int i = 0; i < paddingWidth; i++) {
-        cout << " ";
-    }
-    // prints the title
-    cout << title;
-    cout << endl;
-}
-// prints a standard width horizontal break
-void printHorizontalBreak() {
-    for (int i = 0; i < outputWidth.TOTAL; i++) {
-        cout << "=";
-    }
-    cout << endl;
-}
-//
-string to_uppercase(const string& str) {
-    string result = str;
-    transform(result.begin(), result.end(), result.begin(), ::toupper);
-    return result;
-}
+/*
+Key Design decisions:                                                  
+1. I repurposed the structure of the program (the menu driven aspect) from 
+COS2614 Assessment 1 which required a similar structure.        
+2. I repurposed the class for handling routes from COS2611 Assessment 3 which 
+required similar functionality. I have included the original reflection that 
+outlines the prompts used to obtain the class and algorithms. I did not use AI 
+further in this Assessment, I just modified that code.
+3. I used forward declaration in order to separate the code into logical  
+sections, and to provide anyone reviewing the code an overview right at the 
+beginning.
+*/
 /* ************************************************************************* */
+
 /* ****************************** Reflection ******************************* */
 /*
 Prompts used:
