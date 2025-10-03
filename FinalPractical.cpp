@@ -534,7 +534,7 @@ void SmartCityRouteManagement::dijkstraShortestPath(const string& origin,
     vector<int> previous(locations.size(), -1);
     vector<bool> visited(locations.size(), false);
     
-    // priority queue: (distance, location index)
+    // priority queue: (distance, location, index)
     priority_queue<pair<int, int>, vector<pair<int, int>>,
                     greater<pair<int, int>>> pq;
     
@@ -555,17 +555,81 @@ void SmartCityRouteManagement::dijkstraShortestPath(const string& origin,
         
         // if we reached the destination, we can stop early
         if (current == endIndex) break;
+
+        /* route comparison output */
+        // reconstruct the path
+        stack<int> currentPath;
+        int iterator1 = current;
+        
+        while (iterator1 != -1) {
+            currentPath.push(iterator1);
+            iterator1 = previous[iterator1];
+        }
+        // display the shortest path and distance
+        cout << "\nCurrent path: ";
+
+        while (!currentPath.empty()) {
+            cout << locations[currentPath.top()].name;
+            currentPath.pop();
+            if (!currentPath.empty()) cout << " → ";
+        }
+
+        cout << "\nCurrent distance: " << distance[current] << " km"
+                << endl;
+        /* *********************** */
         
         // explore all neighbors
         for (const Neighbor& neighbor : adjList[current]) {
             int alt = distance[current] + neighbor.distance;
-            
+
+            /* route comparison output */
+            if (neighbor.locationIndex != startIndex) {
+                
+                cout << "\nPotential jump: " 
+                    << locations[neighbor.locationIndex].name 
+                    << " (+" << neighbor.distance << " km)\n";
+                
+                    if (neighbor.locationIndex == endIndex) {
+                    cout << "Total distance: " << alt << " km\n";
+                }
+            }
+            /* *********************** */
+
             if (alt < distance[neighbor.locationIndex]) {
+                /* route comparison output */
+                if (neighbor.locationIndex != startIndex 
+                        && current != startIndex) {
+                    // reconstruct the path
+                    stack<int> shortestPath;
+                    int iterator2 = current;
+                    
+                    while (iterator2 != -1) {
+                        shortestPath.push(iterator2);
+                        iterator2 = previous[iterator2];
+                    }
+                    // display the shortest path and distance
+                    cout << "\nShortest path updated: ";
+
+                    while (!shortestPath.empty()) {
+                        cout << locations[shortestPath.top()].name;
+                        shortestPath.pop();
+                        if (!shortestPath.empty()) cout << " → ";
+                    }
+                    cout << " → " << locations[neighbor.locationIndex].name
+                        << "\nDistance: " << alt << " km\n";
+                }
+                /* *********************** */
+
                 distance[neighbor.locationIndex] = alt;
                 previous[neighbor.locationIndex] = current;
                 pq.push({alt, neighbor.locationIndex});
             }
         }
+        cout << endl;
+        for (int i = 0; i < outputWidth.TOTAL/2; i++) {
+            cout << "*";
+        }
+        cout << endl;
     }
     // display results
     if (distance[endIndex] == INT_MAX) {
@@ -577,21 +641,21 @@ void SmartCityRouteManagement::dijkstraShortestPath(const string& origin,
     stack<int> path;
     int current = endIndex;
     
+    cout << "\nShortest path: ";
+
     while (current != -1) {
         path.push(current);
         current = previous[current];
     }
-    // display the shortest path and distance
-    cout << "Shortest distance: " << distance[endIndex] << " km" 
-            << endl;
-    cout << "Shortest path: ";
-    
+
     while (!path.empty()) {
         cout << locations[path.top()].name;
         path.pop();
         if (!path.empty()) cout << " → ";
     }
-    cout << endl;
+    // display the shortest path and distance
+    cout << "\nShortest distance: " << distance[endIndex] << " km" 
+            << endl;
     // show detailed route information
     cout << "\nDetailed route:" << endl;
     current = endIndex;
